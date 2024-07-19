@@ -10,6 +10,7 @@ class HomePage extends StatefulWidget{
 }
 
 class _HomePageState extends State<StatefulWidget>{
+  /// my controllers
   TextEditingController wtController = TextEditingController();
   TextEditingController ftController = TextEditingController();
   TextEditingController inController = TextEditingController();
