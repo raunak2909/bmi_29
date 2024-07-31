@@ -4,6 +4,8 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+
+///caching / cache management
 class DBHelper{
 
   ///singleton
@@ -11,10 +13,16 @@ class DBHelper{
   DBHelper._();
   static final DBHelper getInstance = DBHelper._();
 
+  static final String tableNote = "noteData";
+  static final String columnNoteSNo = "s_no";
+  static final String columnNoteTitle = "title";
+  static final String columnNoteDesc = "desc";
+
 
   /// my global database
   Database? myDB;
 
+  ///get db
   Future<Database> getDb() async{
     myDB ??= await openDb();
 
@@ -22,6 +30,7 @@ class DBHelper{
 
   }
 
+  ///open db
   Future<Database> openDb() async{
     ///path data/data/yourPackageName/databases
     Directory appDirectory = await getApplicationDocumentsDirectory();
@@ -33,9 +42,36 @@ class DBHelper{
 
     return await openDatabase(dbPath, version: 1, onCreate: (db, version){
       /// table create (all)
-      db.rawQuery("create table noteData ( s_no integer primary key autoincrement, title text, desc text )");
+      db.rawQuery("create table $tableNote ( $columnNoteSNo integer primary key autoincrement, $columnNoteTitle text, $columnNoteDesc text )");
     });
   }
 
+  ///queries
+
+  ///insert data
+  Future<bool> addNote({required String title, required String desc}) async{
+
+    var db = await getDb();
+
+    int rowsEffected = await db.insert(tableNote, {
+      columnNoteTitle : title,
+      columnNoteDesc : desc,
+    });
+
+    return rowsEffected>0;
+
+  }
+
+  ///get all data
+  Future<List<Map<String, dynamic>>> getAllNotes() async{
+    var db = await getDb();
+
+    var allNotes = await db.query(tableNote);
+
+    return allNotes;
+  }
+
+  ///update note
+  ///delete note
 
 }
