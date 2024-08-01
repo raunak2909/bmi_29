@@ -12,6 +12,8 @@ class _DBPageState extends State<DBPage> {
 
   DBHelper? mainDB;
   List<Map<String, dynamic>> allNotes = [];
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descController = TextEditingController();
 
 
   @override
@@ -39,13 +41,27 @@ class _DBPageState extends State<DBPage> {
         itemCount: allNotes.length,
           itemBuilder: (_, index){
             return ListTile(
+              leading: Text('${allNotes[index][DBHelper.columnNoteSNo]}'),
               title: Text(allNotes[index][DBHelper.columnNoteTitle]),
               subtitle: Text(allNotes[index][DBHelper.columnNoteDesc]),
-              trailing: Row(
-                children: [
-                  Icon(Icons.edit, color: Colors.blue,),
-                  Icon(Icons.delete, color: Colors.red,),
-                ],
+              trailing: SizedBox(
+                width: 50,
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: (){
+                        mainDB!.updateNote(title: "Updated Note", desc: "This is Updated desc", sno: allNotes[index][DBHelper.columnNoteSNo]);
+                        getInitialNotes();
+                      },
+                        child: Icon(Icons.edit, color: Colors.blue,)),
+                    InkWell(
+                      onTap: (){
+                        mainDB!.deleteNote(sno: allNotes[index][DBHelper.columnNoteSNo]);
+                        getInitialNotes();
+                      },
+                        child: Icon(Icons.delete, color: Colors.red,)),
+                  ],
+                ),
               ),
             );
           }) : Center(
@@ -55,11 +71,93 @@ class _DBPageState extends State<DBPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: (){
 
-          mainDB!.addNote(title: "Note Title", desc: "Do what you Love or Love what you do.");
+          showModalBottomSheet(context: context,
+             // isDismissible: false,
+             // enableDrag: false,
+              builder: (_){
+            return Container(
+              padding: EdgeInsets.all(11),
+              width: double.infinity,
+              child: Column(
+                children: [
+                  Text('Add Note', style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),),
+                  SizedBox(
+                    height: 21,
+                  ),
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      label: Text('Title'),
+                      hintText: 'Enter title here..',
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(21)
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(21)
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 11,
+                  ),
+                  TextField(
+                    controller: descController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      label: Text('Desc'),
+                      hintText: 'Enter Desc here..',
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(21)
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(21)
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 11,
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(onPressed: (){
+                        addNoteInDB();
+                        titleController.clear();
+                        descController.clear();
+                        Navigator.pop(context);
+                      }, child: Text('Add')),
+                      OutlinedButton(onPressed: (){
+                        Navigator.pop(context);
+                      }, child: Text('Cancel'))
+                    ],
+                  )
+                ],
+              ),
+            );
+          });
           getInitialNotes();
         },
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  void addNoteInDB() async{
+    var mTitle = titleController.text.toString();
+    var mDesc = descController.text.toString();
+
+    bool check = await mainDB!.addNote(title: mTitle, desc: mDesc);
+    String msg = "Note adding failed!!";
+
+    if(check){
+      msg = "Note added successfully!!";
+      getInitialNotes();
+    }
+
+
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
   }
 }
