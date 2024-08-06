@@ -1,4 +1,5 @@
 import 'package:bmi_291/data/local/db_helper.dart';
+import 'package:bmi_291/data/models/note_model.dart';
 import 'package:bmi_291/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class DBPage extends StatefulWidget{
 class _DBPageState extends State<DBPage> {
 
   DBHelper? mainDB;
-  List<Map<String, dynamic>> allNotes = [];
+  List<NoteModel> allNotes = [];
   TextEditingController titleController = TextEditingController();
   TextEditingController descController = TextEditingController();
 
@@ -41,22 +42,22 @@ class _DBPageState extends State<DBPage> {
         itemCount: allNotes.length,
           itemBuilder: (_, index){
             return ListTile(
-              leading: Text('${allNotes[index][DBHelper.columnNoteSNo]}'),
-              title: Text(allNotes[index][DBHelper.columnNoteTitle]),
-              subtitle: Text(allNotes[index][DBHelper.columnNoteDesc]),
+              leading: Text('${allNotes[index].s_no}'),
+              title: Text(allNotes[index].title),
+              subtitle: Text(allNotes[index].desc),
               trailing: SizedBox(
                 width: 50,
                 child: Row(
                   children: [
                     InkWell(
                       onTap: (){
-                        mainDB!.updateNote(title: "Updated Note", desc: "This is Updated desc", sno: allNotes[index][DBHelper.columnNoteSNo]);
+                        mainDB!.updateNote(title: "Updated Note", desc: "This is Updated desc", sno: allNotes[index].s_no!);
                         getInitialNotes();
                       },
                         child: Icon(Icons.edit, color: Colors.blue,)),
                     InkWell(
                       onTap: (){
-                        mainDB!.deleteNote(sno: allNotes[index][DBHelper.columnNoteSNo]);
+                        mainDB!.deleteNote(sno: allNotes[index].s_no!);
                         getInitialNotes();
                       },
                         child: Icon(Icons.delete, color: Colors.red,)),
@@ -147,7 +148,7 @@ class _DBPageState extends State<DBPage> {
     var mTitle = titleController.text.toString();
     var mDesc = descController.text.toString();
 
-    bool check = await mainDB!.addNote(title: mTitle, desc: mDesc);
+    bool check = await mainDB!.addNote(NoteModel(title: mTitle, desc: mDesc));
     String msg = "Note adding failed!!";
 
     if(check){

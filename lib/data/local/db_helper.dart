@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bmi_291/data/models/note_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -18,6 +19,12 @@ class DBHelper {
   static final String columnNoteSNo = "s_no";
   static final String columnNoteTitle = "title";
   static final String columnNoteDesc = "desc";
+
+
+
+
+
+
 
 
   /// my global database
@@ -50,24 +57,28 @@ class DBHelper {
   ///queries
 
   ///insert data
-  Future<bool> addNote({required String title, required String desc}) async {
+  Future<bool> addNote(NoteModel newNote) async {
     var db = await getDb();
 
-    int rowsEffected = await db.insert(tableNote, {
-      columnNoteTitle: title,
-      columnNoteDesc: desc,
-    });
+    int rowsEffected = await db.insert(tableNote, newNote.toMap());
 
     return rowsEffected > 0;
   }
 
   ///get all data
-  Future<List<Map<String, dynamic>>> getAllNotes() async {
+  Future<List<NoteModel>> getAllNotes() async {
     var db = await getDb();
 
-    var allNotes = await db.query(tableNote);
+    List<NoteModel> mNotes = [];
 
-    return allNotes;
+    var data = await db.query(tableNote);
+
+    for(Map<String, dynamic> eachNote in data){
+      NoteModel eachModel = NoteModel.fromMap(eachNote);
+      mNotes.add(eachModel);
+    }
+
+    return mNotes;
   }
 
   ///update note
