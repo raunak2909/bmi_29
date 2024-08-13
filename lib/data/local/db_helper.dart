@@ -21,12 +21,6 @@ class DBHelper {
   static final String columnNoteDesc = "desc";
 
 
-
-
-
-
-
-
   /// my global database
   Database? myDB;
 
@@ -83,12 +77,12 @@ class DBHelper {
 
   ///update note
   Future<bool> updateNote(
-      {required String title, required String desc, required int sno}) async {
+      {required NoteModel updatedNote, required int sno}) async {
     var db = await getDb();
 
     int rowsEffected = await db.update(tableNote, {
-      columnNoteTitle: title,
-      columnNoteDesc: desc
+      columnNoteTitle: updatedNote.title,
+      columnNoteDesc: updatedNote.desc
     }, where: "$columnNoteSNo = $sno");
 
     return rowsEffected>0;

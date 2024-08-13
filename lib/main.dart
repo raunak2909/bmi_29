@@ -1,10 +1,16 @@
+import 'package:bmi_291/data/local/db_helper.dart';
 import 'package:bmi_291/db_page.dart';
+import 'package:bmi_291/note_db_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'home_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (_) => NoteDBProvider(mainDB: DBHelper.getInstance),
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
