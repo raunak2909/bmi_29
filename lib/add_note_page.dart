@@ -1,3 +1,4 @@
+import 'package:bmi_291/cubit/note_db_cubit.dart';
 import 'package:bmi_291/note_db_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,8 @@ import 'data/models/note_model.dart';
 class AddNotePage extends StatefulWidget {
   bool isUpdate;
   NoteModel? updatedNote;
- /* int sno;
+
+  /* int sno;
   String prevTitle;
   String prevDesc;*/
 
@@ -27,8 +29,7 @@ class _AddNotePageState extends State<AddNotePage> {
 
   @override
   Widget build(BuildContext context) {
-
-    if(widget.isUpdate){
+    if (widget.isUpdate) {
       titleController.text = widget.updatedNote!.title;
       descController.text = widget.updatedNote!.desc;
     }
@@ -108,12 +109,20 @@ class _AddNotePageState extends State<AddNotePage> {
     var mDesc = descController.text.toString();
 
     widget.isUpdate
+        ? context.read<NoteDBCubit>().updateNote(
+            updatedNote: NoteModel(title: mTitle, desc: mDesc),
+            sno: widget.updatedNote!.s_no!)
+        : context
+            .read<NoteDBCubit>()
+            .addNote(newNote: NoteModel(title: mTitle, desc: mDesc));
+
+    /* widget.isUpdate
         ? context
             .read<NoteDBProvider>()
             .updateNote(updatedNote: NoteModel(title: mTitle, desc: mDesc), sno: widget.updatedNote!.s_no!)
         : context
             .read<NoteDBProvider>()
-            .addNote(newNote: NoteModel(title: mTitle, desc: mDesc));
+            .addNote(newNote: NoteModel(title: mTitle, desc: mDesc));*/
 
     /*Provider.of<NoteDBProvider>(context, listen: false)
         .addNote(newNote: NoteModel(title: mTitle, desc: mDesc));

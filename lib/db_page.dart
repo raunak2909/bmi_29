@@ -1,10 +1,13 @@
 import 'package:bmi_291/add_note_page.dart';
+import 'package:bmi_291/cubit/note_db_cubit.dart';
+import 'package:bmi_291/cubit/note_db_state.dart';
 import 'package:bmi_291/data/local/db_helper.dart';
 import 'package:bmi_291/data/models/note_model.dart';
 import 'package:bmi_291/main.dart';
 import 'package:bmi_291/note_db_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class DBPage extends StatefulWidget{
@@ -20,7 +23,8 @@ class _DBPageState extends State<DBPage> {
   @override
   void initState() {
     super.initState();
-    context.read<NoteDBProvider>().getInitialNotes();
+    //context.read<NoteDBProvider>().getInitialNotes();
+    context.read<NoteDBCubit>().fetchInitialNotes();
   }
 
   //TextEditingController titleController = TextEditingController();
@@ -42,7 +46,7 @@ class _DBPageState extends State<DBPage> {
       appBar: AppBar(
         title: Text('Notes'),
       ),
-      body: Consumer<NoteDBProvider>(
+      /*body: Consumer<NoteDBProvider>(
         builder: (_, provider, __){
           allNotes = provider.getNoteData();
           return allNotes.isNotEmpty ? ListView.builder(
@@ -58,15 +62,15 @@ class _DBPageState extends State<DBPage> {
                       children: [
                         InkWell(
                             onTap: (){
-                              /* mainDB!.updateNote(title: "Updated Note", desc: "This is Updated desc", sno: allNotes[index].s_no!);
-                        getInitialNotes();*/
+                              *//* mainDB!.updateNote(title: "Updated Note", desc: "This is Updated desc", sno: allNotes[index].s_no!);
+                        getInitialNotes();*//*
                               Navigator.push(context, MaterialPageRoute(builder: (context) => AddNotePage(isUpdate: true, updatedNote: allNotes[index]),));
                             },
                             child: Icon(Icons.edit, color: Colors.blue,)),
                         InkWell(
                             onTap: (){
-                              /* mainDB!.deleteNote(sno: allNotes[index].s_no!);
-                        getInitialNotes();*/
+                              *//* mainDB!.deleteNote(sno: allNotes[index].s_no!);
+                        getInitialNotes();*//*
                               context.read<NoteDBProvider>().deleteNote(sno: allNotes[index].s_no!);
                             },
                             child: Icon(Icons.delete, color: Colors.red,)),
@@ -77,6 +81,61 @@ class _DBPageState extends State<DBPage> {
               }) : Center(
             child: Text('No Notes yet!',style: TextStyle(fontSize: 25),),
           );
+        },
+      ),*/
+
+      body: BlocBuilder<NoteDBCubit, NoteDBState>(
+        builder: (_, state){
+
+          if(state is NoteDBLoadingState){
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if(state is NoteDBErrorState){
+            return Center(
+              child: Text('Error: ${state.errorMsg}'),
+            );
+          }
+
+          if(state is NoteDBLoadedState){
+            return state.mNotes.isNotEmpty ? ListView.builder(
+                itemCount: state.mNotes.length,
+                itemBuilder: (_, index){
+                  return ListTile(
+                    leading: Text('${index+1}'),
+                    title: Text(state.mNotes[index].title),
+                    subtitle: Text(state.mNotes[index].desc),
+                    trailing: SizedBox(
+                      width: 50,
+                      child: Row(
+                        children: [
+                          InkWell(
+                              onTap: (){
+                                /* mainDB!.updateNote(title: "Updated Note", desc: "This is Updated desc", sno: allNotes[index].s_no!);
+                                getInitialNotes();*/
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => AddNotePage(isUpdate: true, updatedNote: state.mNotes[index]),));
+                              },
+                              child: Icon(Icons.edit, color: Colors.blue,)),
+                          InkWell(
+                              onTap: (){
+                                /* mainDB!.deleteNote(sno: allNotes[index].s_no!);
+                                getInitialNotes();*/
+                                //context.read<NoteDBProvider>().deleteNote(sno: allNotes[index].s_no!);
+                              },
+                              child: Icon(Icons.delete, color: Colors.red,)),
+                        ],
+                      ),
+                    ),
+                  );
+                }) : Center(
+              child: Text('No Notes yet!',style: TextStyle(fontSize: 25),),
+            );
+          }
+
+
+          return Container();
         },
       ),
 
